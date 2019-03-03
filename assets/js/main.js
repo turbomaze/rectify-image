@@ -28,25 +28,53 @@ class Rectifier {
    * getProjectionMatrix()
    * Return the matrix that maps destination points to source points.
    *
-   * @param {number} width -- width of the destination image
+   * @param {number} width  -- width of the destination image
    * @param {number} height -- height of the destination image
+   * @param {{x: number, y:number}[4]} points -- the source image corners
    *
    */
-  getProjectionMatrix(width, height) {
-    return [[1, 0, 0, 0], [0, 1, 0, 0]];
+  getProjectionMatrix(width, height, points) {
+    if (this.points < 4) return { x: 0, y: 0 };
+
+    const { x: x0, y: y0 } = points[0];
+    const { x: x1, y: y1 } = points[1];
+    const { x: x2, y: y2 } = points[2];
+    const { x: x3, y: y3 } = points[3];
+    return [
+      [x1 - x0, x3 - x0, x0 + x2 - (x1 + x3), x0],
+      [y1 - y0, y3 - y0, y0 + y2 - (y1 + y3), y0],
+    ];
+  }
+
+  /*
+   * dotProduct()
+   * Return the dot product of the vectors represented by the input arrays.
+   *
+   * @param {number[]} A
+   * @param {number[]} B
+   *
+   */
+  dotProduct(A, B) {
+    return A.reduce((accumulator, value, index) => {
+      return accumulator + value * B[index];
+    }, 0);
   }
 
   /*
    * projectPoint()
    * Return the projection
    *
-   * @param {array[2][4]} T -- the projection matrix
-   * @param {number} x -- the x coordinate
-   * @param {number} y -- the y coordinate
+   * @param {number[2][4]} T -- the projection matrix
+   * @param {number} xPercent -- the x coordinate as a percentage of width
+   * @param {number} yPercent -- the y coordinate as a percentage of height
    *
    */
-  projectPoint(T, x, y) {
-    return { x, y };
+  projectPoint(T, xPercent, yPercent) {
+    const point = [xPercent, yPercent, xPercent * yPercent, 1];
+    return {
+      x: Math.floor(this.dotProduct(T[0], point)),
+      y: Math.floor(this.dotProduct(T[1], point)),
+    };
   }
 
   /*
@@ -55,11 +83,12 @@ class Rectifier {
    *
    * @param {number} width -- width of the destination image
    * @param {number} height -- height of the destination image
+   * @param {{x: number, y:number}[4]} points -- the source image corners, clockwise
    *
    */
-  rectify(width, height) {
+  rectify(width, height, points) {
     // deal with async safety
-    this.rectifyCallArguments = [width, height];
+    this.rectifyCallArguments = Array.from(arguments);
     if (!this.imageData) return;
 
     // make the image data for the destination canvas
@@ -70,10 +99,10 @@ class Rectifier {
     const destinationData = context.getImageData(0, 0, width, height);
 
     // map the destination points to the source image data
-    const T = this.getProjectionMatrix(width, height);
+    const T = this.getProjectionMatrix(width, height, points);
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        const { x: sourceX, y: sourceY } = this.projectPoint(T, x, y);
+        const { x: sourceX, y: sourceY } = this.projectPoint(T, x / width, y / height);
         const index = 4 * (y * width + x);
         const sourceIndex = 4 * (sourceY * this.source.width + sourceX);
         destinationData.data[index + 0] = this.imageData.data[sourceIndex + 0];
