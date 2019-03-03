@@ -3,23 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <title>Rectify Image</title>
-  <script src="./assets/js/main.js"></script>
+  <script src="./assets/js/rectifyImage.js"></script>
   <script>
   window.addEventListener('DOMContentLoaded', () => {
     const source = document.querySelector('#source');
     const destination = document.querySelector('#destination');
     const rectifier = new Rectifier(source, destination);
-    rectifier.rectify(500, 500, [
-      { x: 0, y: 0 },
-      { x: 1000, y: 0 },
-      { x: 1000, y: 400 },
-      { x: 0, y: 1000 },
-    ]);
+
+    const destinationWidth = 500;
+    const destinationHeight = 329;
+    const sourceCorners = [
+      { x: 841, y: 505 },
+      { x: 1542, y: 777 },
+      { x: 1546, y: 1183 },
+      { x: 838, y: 1117 },
+    ];
+    rectifier.rectify(destinationWidth, destinationHeight, sourceCorners);
   })
   </script>
 </head>
 <body>
-  <img id="source" style="display: none" src="./assets/images/source.jpg" />
-  <img id ="destination" />
+  <h1>Javascript Image Rectifier</h1>
+
+  View on Github: <a target="_blank" href="https://github.com/turbomaze/rectify-image">https://github.com/turbomaze/rectify-image</a>
+
+  <br> <br> <br>
+
+  <div>
+    <!-- (required) the source image, can be invisible -->
+    <img id="source" style="display: none" src="./assets/images/source.jpg" />
+
+    <!-- (optional) show the source image to the user -->
+    <img style="width: 500px" src="./assets/images/smallSource.jpg" />
+
+    <!-- (required) this is the destination img tag -->
+    <img id ="destination" />
+  </div>
 </body>
 </html>
