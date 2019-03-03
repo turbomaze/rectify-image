@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Rectify Image</title>
+  <script src="./assets/js/main.js"></script>
+  <script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const source = document.querySelector('#source');
+    const destination = document.querySelector('#destination');
+    const rectifier = new Rectifier(source, destination);
+    rectifier.rectify(500, 500);
+  })
+  </script>
+</head>
+<body>
+  <img id="source" style="display: none" src="./assets/images/source.jpg" />
+  <img id ="destination" />
+</body>
+</html>
