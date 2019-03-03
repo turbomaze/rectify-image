@@ -9,7 +9,7 @@ Do you have images distorted by perspective projections? Just include `assets/js
 
 All you need to do is include the following file in your page and use it like so:
 
-```
+```javascript
 <script src="./assets/js/rectifyImage.js"></script>
 <script>
 window.addEventListener('DOMContentLoaded', () => {
